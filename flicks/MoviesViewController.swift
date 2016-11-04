@@ -41,8 +41,10 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         let posterPath = movie.object(forKey: "poster_path") as? String
         cell.titleLabel.text = title
         cell.descriptionLabel.text = description
-        if (posterPath != nil) {
-                    loadImageFromUrl(url: "https://image.tmdb.org/t/p/w342\(posterPath!)", view: cell.movieImageView)
+        if (posterPath == nil) {
+            cell.movieImageView.image = nil
+        } else {
+            loadImageFromUrl(url: "https://image.tmdb.org/t/p/w342\(posterPath!)", view: cell.movieImageView)
         }
         return cell
     }
