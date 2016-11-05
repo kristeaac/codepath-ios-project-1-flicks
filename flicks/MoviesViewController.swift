@@ -58,6 +58,10 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         return populateCellWithMovieDetails(indexPath: indexPath)
     }
     
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+    }
+    
     func loadMoreMovies() {
         if (!isMoreDataLoading) {
             isMoreDataLoading = true
