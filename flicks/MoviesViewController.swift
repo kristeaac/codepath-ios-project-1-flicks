@@ -41,7 +41,7 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         if (indexPath.row == movies.count - 1) {
             loadMoreMovies()
         }
-        return populateCellWithMoveDetails(indexPath: indexPath)
+        return populateCellWithMovieDetails(indexPath: indexPath)
     }
     
     func loadMoreMovies() {
@@ -58,7 +58,7 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         loadingMoreView!.startAnimating()
     }
     
-    func populateCellWithMoveDetails(indexPath: IndexPath) -> UITableViewCell {
+    func populateCellWithMovieDetails(indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "MovieCell", for: indexPath) as! MovieCell
         let movie = movies[indexPath.row]
         let title = movie.object(forKey: "title") as! String
