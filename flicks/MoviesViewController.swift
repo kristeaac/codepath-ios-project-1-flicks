@@ -1,9 +1,10 @@
 import UIKit
 import MBProgressHUD
 
-class MoviesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class MoviesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate {
     @IBOutlet weak var tableView: UITableView!
     var movies = [NSDictionary]()
+    var filteredMovies = [NSDictionary]()
     var page = 1
     var totalPages: Int!
     var totalResults: Int!
@@ -11,6 +12,8 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
     var loadingMoreView: InfiniteScrollActivityView?
     let refreshControl = UIRefreshControl()
     var networkErrorView: UIView!
+    let searchBar = UISearchBar()
+    var searchActive = false
     
     
     @IBOutlet var mainView: UIView!
@@ -23,6 +26,12 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         initializeInfiniteScroll()
         initializeRefreshControl()
         initializeNetworkErrorView()
+        initializeSearchBar()
+    }
+    
+    func initializeSearchBar() {
+        searchBar.delegate = self
+        navigationItem.titleView = searchBar
     }
     
     func initializeNetworkErrorView() {
@@ -93,7 +102,7 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return movies.count
+        return searchActive ? filteredMovies.count : movies.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -124,7 +133,7 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
     
     func populateCellWithMovieDetails(indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "MovieCell", for: indexPath) as! MovieCell
-        let movie = movies[indexPath.row]
+        let movie = searchActive ? filteredMovies[indexPath.row] : movies[indexPath.row]
         let title = movie.object(forKey: "title") as! String
         let description = movie.object(forKey: "overview") as! String
         let posterPath = movie.object(forKey: "poster_path") as? String
@@ -162,8 +171,24 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         destinationViewController.movieTitle = (sender! as! MovieCell).titleLabel.text
         destinationViewController.movieDescription = (sender! as! MovieCell).descriptionLabel.text
         let indexPath = tableView.indexPath(for: (sender! as! UITableViewCell))
-        let movieId = movies[(indexPath?.row)!].object(forKey: "id") as! Int
+        let movie = searchActive ? filteredMovies[(indexPath?.row)!] : movies[(indexPath?.row)!]
+        let movieId = movie.object(forKey: "id") as! Int
         destinationViewController.movieId = movieId
+    }
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        filteredMovies = movies.filter({ (movie) -> Bool in
+            let title = movie.object(forKey: "title") as! NSString
+            let tmp: NSString = title
+            let range = tmp.range(of: searchText, options: NSString.CompareOptions.caseInsensitive)
+            return range.location != NSNotFound
+        })
+        if (filteredMovies.count == 0) {
+            searchActive = false;
+        } else {
+            searchActive = true;
+        }
+        tableView.reloadData()
     }
 
 }
