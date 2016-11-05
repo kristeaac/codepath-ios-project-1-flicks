@@ -145,8 +145,12 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
                 return
             }
             DispatchQueue.main.async(execute: { () -> Void in
+                view.alpha = 0.0
                 let image = UIImage(data: data!)
                 view.image = image
+                UIView.animate(withDuration: 0.3, animations: { () -> Void in
+                    view.alpha = 1.0
+                })
             })
             
         }).resume()
