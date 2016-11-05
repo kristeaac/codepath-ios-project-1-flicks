@@ -28,4 +28,26 @@ class TheMovieDBHelper {
         task.resume()
     }
     
+    static func getMovieDetails(id: Int, callback: @escaping (NSDictionary) -> Void) {
+        let url = URL(string:"https://api.themoviedb.org/3/movie/\(id)?api_key=a07e22bc18f5cb106bfe4cc1f83ad8ed")
+        let request = URLRequest(url: url!)
+        let session = URLSession(
+            configuration: URLSessionConfiguration.default,
+            delegate:nil,
+            delegateQueue:OperationQueue.main
+        )
+        
+        let task : URLSessionDataTask = session.dataTask(with: request,completionHandler: { (dataOrNil, response, error) in
+            if let data = dataOrNil {
+                if let responseDictionary = try! JSONSerialization.jsonObject(with: data, options:[]) as? NSDictionary {
+                    callback(responseDictionary)
+                }
+            } else {
+                NSLog("uh oh")
+            }
+            
+        });
+        task.resume()
+    }
+    
 }

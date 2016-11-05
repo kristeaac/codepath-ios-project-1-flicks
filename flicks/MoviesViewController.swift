@@ -111,6 +111,9 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         destinationViewController.posterImage = (sender! as! MovieCell).movieImageView.image
         destinationViewController.movieTitle = (sender! as! MovieCell).titleLabel.text
         destinationViewController.movieDescription = (sender! as! MovieCell).descriptionLabel.text
+        let indexPath = tableView.indexPath(for: (sender! as! UITableViewCell))
+        let movieId = movies[(indexPath?.row)!].object(forKey: "id") as! Int
+        destinationViewController.movieId = movieId
     }
 
 }
