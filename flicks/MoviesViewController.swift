@@ -8,16 +8,19 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
     var totalResults: Int!
     var isMoreDataLoading = false
     var loadingMoreView: InfiniteScrollActivityView?
+    let refreshControl = UIRefreshControl()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         TheMovieDBHelper.getNowPlaying(page: page, callback: handleMovieList)
         initializeInfiniteScroll()
+        initializeRefreshControl()
     }
     
     func handleMovieList(movies: [NSDictionary]?, page: Int, totalPages: Int, totalResults: Int) {
         self.isMoreDataLoading = false
         self.loadingMoreView!.stopAnimating()
+        self.refreshControl.endRefreshing()
         self.movies.append(contentsOf: movies!)
         tableView.reloadData()
     }
@@ -31,6 +34,17 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         var insets = tableView.contentInset;
         insets.bottom += InfiniteScrollActivityView.defaultHeight;
         tableView.contentInset = insets
+    }
+    
+    func initializeRefreshControl() {
+        self.refreshControl.addTarget(self, action: #selector(refreshFeed), for: UIControlEvents.valueChanged)
+        tableView.insertSubview(self.refreshControl, at: movies.count)
+    }
+    
+    func refreshFeed() {
+        movies = [NSDictionary]()
+        tableView.reloadData()
+        TheMovieDBHelper.getNowPlaying(page: 1, callback: handleMovieList)
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
