@@ -10,13 +10,35 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
     var isMoreDataLoading = false
     var loadingMoreView: InfiniteScrollActivityView?
     let refreshControl = UIRefreshControl()
+    var networkErrorView: UIView!
+    
+    
+    @IBOutlet var mainView: UIView!
+
 
     override func viewDidLoad() {
         super.viewDidLoad()
         MBProgressHUD.showAdded(to: self.view, animated: true)
-        TheMovieDBHelper.getNowPlaying(page: page, callback: initialMovieListLoad)
+        TheMovieDBHelper.getNowPlaying(page: page, callback: initialMovieListLoad, failureCallback: showNetworkError)
         initializeInfiniteScroll()
         initializeRefreshControl()
+        initializeNetworkErrorView()
+    }
+    
+    func initializeNetworkErrorView() {
+        let y = (self.navigationController?.navigationBar.frame.height)! + (self.navigationController?.navigationBar.frame.origin.y)!
+        let frame = CGRect(origin: CGPoint(x: 0, y : y), size: CGSize(width: tableView.bounds.size.width, height: 50))
+        networkErrorView = UIView(frame: frame)
+        networkErrorView.backgroundColor = UIColor(red: 0/255, green: 0/255, blue: 0/255, alpha: 0.65)
+        let label = UILabel(frame: CGRect(origin: CGPoint(x: 0,y :0), size: CGSize(width: tableView.bounds.size.width, height: 50)))
+        label.text = "Network Error"
+        label.textAlignment = .center
+        label.textColor = UIColor.white
+        networkErrorView.addSubview(label)
+        networkErrorView.sizeToFit()
+        addBottomBorderWithColor(view: networkErrorView, color: UIColor.black, width: 2)
+        networkErrorView.isHidden = true
+        mainView.addSubview(networkErrorView)
     }
     
     func initialMovieListLoad(movies: [NSDictionary]?, page: Int, totalPages: Int, totalResults: Int) {
@@ -43,6 +65,21 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         tableView.contentInset = insets
     }
     
+    func showNetworkError() {
+        MBProgressHUD.hide(for: self.view, animated: true)
+        networkErrorView.isHidden = false
+        self.isMoreDataLoading = false
+        self.loadingMoreView!.stopAnimating()
+        self.refreshControl.endRefreshing()
+    }
+    
+    func addBottomBorderWithColor(view: UIView, color: UIColor, width: CGFloat) {
+        let border = CALayer()
+        border.backgroundColor = color.cgColor
+        border.frame = CGRect(origin: CGPoint(x: 0, y : view.frame.size.height), size: CGSize(width: view.frame.width, height: width))
+        view.layer.addSublayer(border)
+    }
+    
     func initializeRefreshControl() {
         self.refreshControl.addTarget(self, action: #selector(refreshFeed), for: UIControlEvents.valueChanged)
         tableView.insertSubview(self.refreshControl, at: movies.count)
@@ -51,7 +88,8 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
     func refreshFeed() {
         movies = [NSDictionary]()
         tableView.reloadData()
-        TheMovieDBHelper.getNowPlaying(page: 1, callback: handleMovieList)
+        networkErrorView.isHidden = true
+        TheMovieDBHelper.getNowPlaying(page: 1, callback: handleMovieList, failureCallback: showNetworkError)
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -73,7 +111,8 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         if (!isMoreDataLoading) {
             isMoreDataLoading = true
             animateLoadingIndicator()
-            TheMovieDBHelper.getNowPlaying(page: page + 1, callback: handleMovieList)
+            networkErrorView.isHidden = true
+            TheMovieDBHelper.getNowPlaying(page: page + 1, callback: handleMovieList, failureCallback: showNetworkError)
         }
     }
     

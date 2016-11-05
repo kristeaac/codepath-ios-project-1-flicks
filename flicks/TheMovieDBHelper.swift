@@ -2,7 +2,7 @@ import Foundation
 
 class TheMovieDBHelper {
     
-    static func getNowPlaying(page: Int, callback: @escaping ([NSDictionary]?, Int, Int, Int) -> Void) {
+    static func getNowPlaying(page: Int, callback: @escaping ([NSDictionary]?, Int, Int, Int) -> Void, failureCallback: @escaping () -> Void) {
         let url = URL(string:"https://api.themoviedb.org/3/movie/now_playing?api_key=a07e22bc18f5cb106bfe4cc1f83ad8ed&page=\(page)")
         let request = URLRequest(url: url!)
         let session = URLSession(
@@ -21,7 +21,7 @@ class TheMovieDBHelper {
                     callback(r, page, totalPages, totalResults)
                 }
             } else {
-                NSLog("uh oh")
+                failureCallback()
             }
 
         });
