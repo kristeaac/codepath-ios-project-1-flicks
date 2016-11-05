@@ -105,5 +105,12 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
             
         }).resume()
     }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        let destinationViewController = segue.destination as! MovieDetailsViewController
+        destinationViewController.posterImage = (sender! as! MovieCell).movieImageView.image
+        destinationViewController.movieTitle = (sender! as! MovieCell).titleLabel.text
+        destinationViewController.movieDescription = (sender! as! MovieCell).descriptionLabel.text
+    }
 
 }
