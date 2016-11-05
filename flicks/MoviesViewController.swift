@@ -1,4 +1,5 @@
 import UIKit
+import MBProgressHUD
 
 class MoviesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     @IBOutlet weak var tableView: UITableView!
@@ -12,9 +13,15 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        TheMovieDBHelper.getNowPlaying(page: page, callback: handleMovieList)
+        MBProgressHUD.showAdded(to: self.view, animated: true)
+        TheMovieDBHelper.getNowPlaying(page: page, callback: initialMovieListLoad)
         initializeInfiniteScroll()
         initializeRefreshControl()
+    }
+    
+    func initialMovieListLoad(movies: [NSDictionary]?, page: Int, totalPages: Int, totalResults: Int) {
+        MBProgressHUD.hide(for: self.view, animated: true)
+        handleMovieList(movies: movies, page: page, totalPages: totalPages, totalResults: totalResults)
     }
     
     func handleMovieList(movies: [NSDictionary]?, page: Int, totalPages: Int, totalResults: Int) {
