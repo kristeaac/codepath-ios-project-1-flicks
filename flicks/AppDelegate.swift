@@ -23,6 +23,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let topRatedNavigationController = createNavigationController(storyboard: storyboard, endpoint: "top_rated", title: "Top Rated", iconName: "top_rated")
         
         let tabBarController = UITabBarController()
+        tabBarController.tabBar.barTintColor = UIColor.black
+        tabBarController.tabBar.backgroundColor = UIColor.black
+        tabBarController.tabBar.tintColor = UIColor(red: 255/255, green: 204/255, blue: 102/255, alpha:1)
+
         tabBarController.viewControllers = [nowPlayingNavigationController, topRatedNavigationController]
         
         window?.rootViewController = tabBarController
@@ -33,10 +37,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func createNavigationController(storyboard: UIStoryboard, endpoint: String, title: String, iconName: String) -> UINavigationController {
         let navigationController = storyboard.instantiateViewController(withIdentifier: "MoviesNavigationController") as! UINavigationController
+        navigationController.navigationBar.barTintColor = UIColor.black
         let viewController = navigationController.topViewController as! MoviesViewController
         viewController.endpoint = endpoint
-        navigationController.tabBarItem.title = title
         navigationController.tabBarItem.image = UIImage(named: iconName)
+        navigationController.tabBarItem.title = title
+        navigationController.tabBarItem.setTitleTextAttributes([NSForegroundColorAttributeName: UIColor(red: 255/255, green: 204/255, blue: 102/255, alpha:1)], for: .selected)
         return navigationController
     }
 

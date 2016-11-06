@@ -32,6 +32,13 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         initializeSearchBar()
     }
     
+    func initializeRefreshControl() {
+        refreshControl.backgroundColor = UIColor.black
+        refreshControl.tintColor = UIColor.white
+        self.refreshControl.addTarget(self, action: #selector(refreshFeed), for: UIControlEvents.valueChanged)
+        tableView.insertSubview(self.refreshControl, at: movies.count)
+    }
+    
     func initializeCollectionView() {
         let layout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
         layout.sectionInset = UIEdgeInsets(top: 20, left: 10, bottom: 10, right: 10)
@@ -40,7 +47,7 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         collectionView.dataSource = self
         collectionView.delegate = self
         collectionView.register(MovieCollectionViewCell.self, forCellWithReuseIdentifier: "MovieCollectionCell")
-        collectionView.backgroundColor = UIColor.white
+        collectionView.backgroundColor = UIColor.black
         collectionView.isHidden = true
         self.view.addSubview(collectionView)
     }
@@ -104,11 +111,6 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         border.backgroundColor = color.cgColor
         border.frame = CGRect(origin: CGPoint(x: 0, y : view.frame.size.height), size: CGSize(width: view.frame.width, height: width))
         view.layer.addSublayer(border)
-    }
-    
-    func initializeRefreshControl() {
-        self.refreshControl.addTarget(self, action: #selector(refreshFeed), for: UIControlEvents.valueChanged)
-        tableView.insertSubview(self.refreshControl, at: movies.count)
     }
     
     func refreshFeed() {
