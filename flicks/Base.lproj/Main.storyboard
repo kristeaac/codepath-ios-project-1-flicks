@@ -17,16 +17,38 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" misplaced="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="140" sectionHeaderHeight="28" sectionFooterHeight="28" id="7Bu-20-IIs">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                            <view contentMode="scaleToFill" misplaced="YES" id="79o-aQ-EX6">
+                                <rect key="frame" x="0.0" y="62" width="375" height="42"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <subviews>
+                                    <segmentedControl opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" id="tY5-N1-evF">
+                                        <rect key="frame" x="135" y="8" width="121" height="29"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <segments>
+                                            <segment title="" image="list_view">
+                                                <size key="contentOffset" width="0.0" height="2"/>
+                                            </segment>
+                                            <segment title="" image="grid_view">
+                                                <size key="contentOffset" width="0.0" height="2"/>
+                                            </segment>
+                                        </segments>
+                                        <connections>
+                                            <action selector="onViewChange:" destination="BYZ-38-t0r" eventType="valueChanged" id="236-Bi-xG5"/>
+                                        </connections>
+                                    </segmentedControl>
+                                </subviews>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            </view>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" misplaced="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="151" sectionHeaderHeight="28" sectionFooterHeight="28" id="7Bu-20-IIs">
+                                <rect key="frame" x="0.0" y="112" width="375" height="555"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" misplaced="YES" selectionStyle="default" accessoryType="disclosureIndicator" indentationWidth="10" reuseIdentifier="MovieCell" rowHeight="140" id="nW6-jM-6Vd" customClass="MovieCell" customModule="flicks" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="28" width="375" height="140"/>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" misplaced="YES" selectionStyle="default" accessoryType="disclosureIndicator" indentationWidth="10" reuseIdentifier="MovieCell" rowHeight="151" id="nW6-jM-6Vd" customClass="MovieCell" customModule="flicks" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="28" width="375" height="151"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="nW6-jM-6Vd" id="KzG-dM-dSQ">
-                                            <rect key="frame" x="0.0" y="0.0" width="342" height="139"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="342" height="150"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" id="qPT-Rh-Uh6">
@@ -54,7 +76,7 @@
                                             <outlet property="descriptionLabel" destination="JbP-eT-u4h" id="WAN-17-iOC"/>
                                             <outlet property="movieImageView" destination="qPT-Rh-Uh6" id="Lt9-HD-yFe"/>
                                             <outlet property="titleLabel" destination="Gs4-db-sz7" id="Sqa-yH-SY4"/>
-                                            <segue destination="wDu-Kr-u43" kind="push" id="UaG-zZ-0TU"/>
+                                            <segue destination="wDu-Kr-u43" kind="push" identifier="movieTableViewSegue" id="UaG-zZ-0TU"/>
                                         </connections>
                                     </tableViewCell>
                                 </prototypes>
@@ -70,6 +92,7 @@
                     <connections>
                         <outlet property="mainView" destination="8bC-Xf-vdC" id="bfA-MN-aCd"/>
                         <outlet property="tableView" destination="7Bu-20-IIs" id="uL6-2m-fBY"/>
+                        <segue destination="wDu-Kr-u43" kind="push" identifier="movieCollectionViewSegue" id="XPq-7f-rxf"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
@@ -178,9 +201,16 @@
             <point key="canvasLocation" x="73.5" y="136.5"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="grid_view" width="30" height="30"/>
+        <image name="list_view" width="30" height="30"/>
+    </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>
         <simulatedOrientationMetrics key="orientation"/>
         <simulatedScreenMetrics key="destination" type="retina4_7.fullscreen"/>
     </simulatedMetricsContainer>
+    <inferredMetricsTieBreakers>
+        <segue reference="UaG-zZ-0TU"/>
+    </inferredMetricsTieBreakers>
 </document>

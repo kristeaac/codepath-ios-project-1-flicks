@@ -1,8 +1,9 @@
 import UIKit
 import MBProgressHUD
 
-class MoviesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate {
+class MoviesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate, UICollectionViewDataSource, UICollectionViewDelegate {
     @IBOutlet weak var tableView: UITableView!
+    var collectionView: UICollectionView!
     var movies = [NSDictionary]()
     var filteredMovies = [NSDictionary]()
     var page = 1
@@ -22,12 +23,26 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        initializeCollectionView()
         MBProgressHUD.showAdded(to: self.view, animated: true)
         TheMovieDBHelper.getMovieList(endpoint: endpoint, page: page, callback: initialMovieListLoad, failureCallback: showNetworkError)
         initializeInfiniteScroll()
         initializeRefreshControl()
         initializeNetworkErrorView()
         initializeSearchBar()
+    }
+    
+    func initializeCollectionView() {
+        let layout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
+        layout.sectionInset = UIEdgeInsets(top: 20, left: 10, bottom: 10, right: 10)
+        layout.itemSize = CGSize(width: 90, height: 120)
+        collectionView = UICollectionView(frame: tableView.frame, collectionViewLayout: layout)
+        collectionView.dataSource = self
+        collectionView.delegate = self
+        collectionView.register(MovieCollectionViewCell.self, forCellWithReuseIdentifier: "MovieCollectionCell")
+        collectionView.backgroundColor = UIColor.white
+        collectionView.isHidden = true
+        self.view.addSubview(collectionView)
     }
     
     func initializeSearchBar() {
@@ -62,6 +77,7 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         self.refreshControl.endRefreshing()
         self.movies.append(contentsOf: movies!)
         tableView.reloadData()
+        collectionView.reloadData()
     }
 
     func initializeInfiniteScroll() {
@@ -98,6 +114,7 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
     func refreshFeed() {
         movies = [NSDictionary]()
         tableView.reloadData()
+        collectionView.reloadData()
         networkErrorView.isHidden = true
         TheMovieDBHelper.getMovieList(endpoint: endpoint, page: 1, callback: handleMovieList, failureCallback: showNetworkError)
     }
@@ -106,15 +123,30 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         return searchActive ? filteredMovies.count : movies.count
     }
     
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return searchActive ? filteredMovies.count : movies.count
+    }
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if (indexPath.row == movies.count - 1) {
             loadMoreMovies()
         }
-        return populateCellWithMovieDetails(indexPath: indexPath)
+        return populateTableViewCellWithMovieDetails(indexPath: indexPath)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        if (indexPath.row == movies.count - 1) {
+            loadMoreMovies()
+        }
+        return populateCollectionViewCellWithMovieDetails(indexPath: indexPath)
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        performSegue(withIdentifier: "movieCollectionViewSegue", sender: collectionView.cellForItem(at: indexPath))
     }
     
     func loadMoreMovies() {
@@ -132,7 +164,7 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         loadingMoreView!.startAnimating()
     }
     
-    func populateCellWithMovieDetails(indexPath: IndexPath) -> UITableViewCell {
+    func populateTableViewCellWithMovieDetails(indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "MovieCell", for: indexPath) as! MovieCell
         let movie = searchActive ? filteredMovies[indexPath.row] : movies[indexPath.row]
         let title = movie.object(forKey: "title") as! String
@@ -144,6 +176,20 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
             cell.movieImageView.image = nil
         } else {
             loadImageFromUrl(url: "https://image.tmdb.org/t/p/w342\(posterPath!)", view: cell.movieImageView)
+        }
+        return cell
+    }
+    
+    func populateCollectionViewCellWithMovieDetails(indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MovieCollectionCell", for: indexPath) as! MovieCollectionViewCell
+        let movie = searchActive ? filteredMovies[indexPath.row] : movies[indexPath.row]
+        let posterPath = movie.object(forKey: "poster_path") as? String
+        let title = movie.object(forKey: "title") as! String
+        cell.titleLabel.text = title
+        if (posterPath == nil) {
+            cell.moviePosterImageView.image = nil
+        } else {
+            loadImageFromUrl(url: "https://image.tmdb.org/t/p/w342\(posterPath!)", view: cell.moviePosterImageView)
         }
         return cell
     }
@@ -167,12 +213,35 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        let identifier = segue.identifier!
+        var posterImage: UIImage!
+        var movieTitle: String!
+        var movieDescription: String!
+        var index: Int!
+        var movie: NSDictionary!
+        
+        if (identifier == "movieTableViewSegue") {
+            let cell = sender as! MovieCell
+            posterImage = cell.movieImageView.image
+            movieTitle = cell.titleLabel.text
+            movieDescription = cell.descriptionLabel.text
+            let indexPath = tableView.indexPath(for: cell)
+            index = indexPath?.row
+            movie = searchActive ? filteredMovies[index] : movies[index]
+        } else {
+            let cell = sender as! MovieCollectionViewCell
+            posterImage = cell.moviePosterImageView.image
+            movieTitle = cell.titleLabel.text
+            let indexPath = collectionView.indexPath(for: cell)
+            index = indexPath?.row
+            movie = searchActive ? filteredMovies[index] : movies[index]
+            movieDescription = movie.object(forKey: "overview") as! String
+        }
+        
         let destinationViewController = segue.destination as! MovieDetailsViewController
-        destinationViewController.posterImage = (sender! as! MovieCell).movieImageView.image
-        destinationViewController.movieTitle = (sender! as! MovieCell).titleLabel.text
-        destinationViewController.movieDescription = (sender! as! MovieCell).descriptionLabel.text
-        let indexPath = tableView.indexPath(for: (sender! as! UITableViewCell))
-        let movie = searchActive ? filteredMovies[(indexPath?.row)!] : movies[(indexPath?.row)!]
+        destinationViewController.posterImage = posterImage
+        destinationViewController.movieTitle = movieTitle
+        destinationViewController.movieDescription = movieDescription
         let movieId = movie.object(forKey: "id") as! Int
         destinationViewController.movieId = movieId
     }
@@ -190,6 +259,16 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
             searchActive = true;
         }
         tableView.reloadData()
+        collectionView.reloadData()
     }
 
+    @IBAction func onViewChange(_ sender: UISegmentedControl) {
+        if (sender.selectedSegmentIndex == 0) {
+            tableView.isHidden = false
+            collectionView.isHidden = true
+        } else {
+            tableView.isHidden = true
+            collectionView.isHidden = false
+        }
+    }
 }
