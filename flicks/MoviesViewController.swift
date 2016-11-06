@@ -14,6 +14,7 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
     var networkErrorView: UIView!
     let searchBar = UISearchBar()
     var searchActive = false
+    var endpoint: String!
     
     
     @IBOutlet var mainView: UIView!
@@ -22,7 +23,7 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
     override func viewDidLoad() {
         super.viewDidLoad()
         MBProgressHUD.showAdded(to: self.view, animated: true)
-        TheMovieDBHelper.getNowPlaying(page: page, callback: initialMovieListLoad, failureCallback: showNetworkError)
+        TheMovieDBHelper.getMovieList(endpoint: endpoint, page: page, callback: initialMovieListLoad, failureCallback: showNetworkError)
         initializeInfiniteScroll()
         initializeRefreshControl()
         initializeNetworkErrorView()
@@ -98,7 +99,7 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         movies = [NSDictionary]()
         tableView.reloadData()
         networkErrorView.isHidden = true
-        TheMovieDBHelper.getNowPlaying(page: 1, callback: handleMovieList, failureCallback: showNetworkError)
+        TheMovieDBHelper.getMovieList(endpoint: endpoint, page: 1, callback: handleMovieList, failureCallback: showNetworkError)
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -121,7 +122,7 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
             isMoreDataLoading = true
             animateLoadingIndicator()
             networkErrorView.isHidden = true
-            TheMovieDBHelper.getNowPlaying(page: page + 1, callback: handleMovieList, failureCallback: showNetworkError)
+            TheMovieDBHelper.getMovieList(endpoint: endpoint, page: page + 1, callback: handleMovieList, failureCallback: showNetworkError)
         }
     }
     

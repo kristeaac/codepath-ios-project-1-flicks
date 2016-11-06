@@ -3,7 +3,15 @@ import Foundation
 class TheMovieDBHelper {
     
     static func getNowPlaying(page: Int, callback: @escaping ([NSDictionary]?, Int, Int, Int) -> Void, failureCallback: @escaping () -> Void) {
-        let url = URL(string:"https://api.themoviedb.org/3/movie/now_playing?api_key=a07e22bc18f5cb106bfe4cc1f83ad8ed&page=\(page)")
+        getMovieList(endpoint: "now_playing", page: page, callback: callback, failureCallback: failureCallback)
+    }
+    
+    static func getTopRated(page: Int, callback: @escaping ([NSDictionary]?, Int, Int, Int) -> Void, failureCallback: @escaping () -> Void) {
+        getMovieList(endpoint: "top_rated", page: page, callback: callback, failureCallback: failureCallback)
+    }
+    
+    static func getMovieList(endpoint: String, page: Int, callback: @escaping ([NSDictionary]?, Int, Int, Int) -> Void, failureCallback: @escaping () -> Void) {
+        let url = URL(string:"https://api.themoviedb.org/3/movie/\(endpoint)?api_key=a07e22bc18f5cb106bfe4cc1f83ad8ed&page=\(page)")
         let request = URLRequest(url: url!)
         let session = URLSession(
             configuration: URLSessionConfiguration.default,
@@ -23,7 +31,7 @@ class TheMovieDBHelper {
             } else {
                 failureCallback()
             }
-
+            
         });
         task.resume()
     }
