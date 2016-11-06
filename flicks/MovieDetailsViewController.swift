@@ -25,6 +25,8 @@ class MovieDetailsViewController: UIViewController {
     func populateMovieDetails(details: NSDictionary) {
         let runtime = details.object(forKey: "runtime") as! Int
         runtimeLabel.text = "\(runtime) min"
+        let releaseDate = details.object(forKey: "release_date") as! String
+        releaseDateLabel.text = releaseDate
     }
 
 }
